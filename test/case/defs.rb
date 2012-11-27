@@ -1,17 +1,17 @@
-require 'ebnf'
+require 'rbnf'
 
 class DefTests
   def simple_definition
-    EBNF.define :abc do
-      +(EBNF[?a]/?b/?c)
+    RBNF.define :abc do
+      +(RBNF[?a]/?b/?c)
     end
-    EBNF.abc
+    RBNF.abc
   end
   def recursive_definition
-    EBNF.define :parens do
-      EBNF[?(] + parens.opt + ?)
+    RBNF.define :parens do
+      RBNF[?(] + parens.opt + ?)
     end
-    EBNF.parens
+    RBNF.parens
   end
 end
 
