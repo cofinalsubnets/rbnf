@@ -1,17 +1,19 @@
 $LOAD_PATH << File.dirname(__FILE__)
 module EBNF
   autoload :Matcher, 'ebnf/matcher'
+  DEFS = {}
+  F = self
 
   def opt
-    Optate.new self
+    Opt.new self
   end
 
   def cat(f)
-    Catenate.new self, ebnify(f)
+    Cat.new self, ebnify(f)
   end
 
   def alt(f)
-    Alternate.new self, ebnify(f)
+    Alt.new self, ebnify(f)
   end
 
   def except(f)
@@ -19,7 +21,7 @@ module EBNF
   end
 
   def rep(n=nil)
-    Repeat.new self
+    Rep.new self
   end
 
   def group
@@ -46,11 +48,18 @@ module EBNF
 
   class << self
     def new(s)
-      Terminal.new s
+      Term.new s
     end
     alias [] new
-  end
 
+    def define(sym,&b)
+      DEFS[sym] = Def.new(sym, Matcher.new {|s| EBNF.instance_exec(&b) =~s})
+    end
+
+    def method_missing(sym)
+      DEFS.has_key?(sym) ? DEFS[sym] : super
+    end
+  end
   
   class Unary
     include EBNF
@@ -68,7 +77,7 @@ module EBNF
     end
   end
 
-  class Alternate < Binary
+  class Alt < Binary
     def to_s
       "#{a} | #{b}"
     end
@@ -77,7 +86,16 @@ module EBNF
     end
   end
 
-  class Catenate < Binary
+  class Def < Binary
+    def to_s
+      "#{a}"
+    end
+    def matcher
+      b
+    end
+  end
+
+  class Cat < Binary
     def to_s
       "#{a} , #{b}"
     end
@@ -86,7 +104,7 @@ module EBNF
     end
   end
 
-  class Optate < Unary
+  class Opt < Unary
     def to_s
       "[ #{a} ]"
     end
@@ -113,7 +131,7 @@ module EBNF
     end
   end
 
-  class Repeat < Unary
+  class Rep < Unary
     def to_s
       "{ #{a} }"
     end
@@ -123,7 +141,7 @@ module EBNF
     end
   end
 
-  class Terminal < Unary
+  class Term < Unary
     def to_s
       "\"#{a}\""
     end

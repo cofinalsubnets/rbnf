@@ -2,7 +2,7 @@ module EBNF
   class Matcher < Proc
 
     def cat(form)
-      Matcher.new {|s| complements(s).any? {|c| form[c]}}
+      Matcher.new {|s| comps(s).any? {|c| form[c]}}
     end
 
     def except(form)
@@ -25,7 +25,7 @@ module EBNF
 
     def _repeat
       Matcher.new do |s|
-        s.empty?  || self[s] || complements(s).select { |c| rep[c] }.any?
+        s.empty?  || self[s] || comps(s).select { |c| rep[c] }.any?
       end
     end
 
@@ -43,12 +43,12 @@ module EBNF
       end
     end
 
-    def partials(s)
+    def parts(s)
       (0..s.size-1).map {|i| s[0..i]}.select {|h| self[h]}
     end
 
-    def complements(s)
-      partials(s).map {|p| s.sub p, ''}
+    def comps(s)
+      parts(s).map {|p| s.sub p, ''}
     end
   end
 end
