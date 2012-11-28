@@ -78,7 +78,7 @@ module RBNF
       "{ #{a} }"
     end
     def match(s)
-      s.empty? or a.comps(s).select {|c| match c}.any?
+      s.empty? or a.comps(s).any? {|c| match c}
     end
   end
 
