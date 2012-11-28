@@ -19,19 +19,15 @@ module RBNF
 
     def rep
       Matcher.new do |s|
-        s.empty?  || self[s] || comps(s).select { |c| rep[c] }.any?
+        s.empty? || comps(s).select { |c| rep[c] }.any?
       end
     end
 
     def rep_(n)
       if    n == 0
         Matcher.new {|s| s.empty? }
-      elsif n == 1
-        self
-      elsif Integer===n and n>1
-        Matcher.new do |s|
-          (2..n).inject(self) {|m| m.cat self}[s]
-        end
+      elsif Integer===n && n>0
+        Matcher.new {|s| (2..n).inject(self) {|m| m.cat self}[s]}
       else
         raise ArgumentError, "can't repeat #{self} #{n} times"
       end

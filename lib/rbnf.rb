@@ -55,12 +55,11 @@ module RBNF
     end
 
     def define(sym,&b)
-      ast_p = ->{RBNF.instance_exec &b}
-      DEFS[sym] = Def.new(sym, Matcher.new {|s| ast_p.call =~s})
-      DEFS[sym].tap{|d| d.instance_variable_set :@a, "#{sym} = #{ast_p.call} ;"}
+      DEFS[sym] = Def.new(sym, Matcher.new {|s| b.call =~s})
+      DEFS[sym].tap{|d| d.instance_variable_set :@a, "#{sym} = #{b.call} ;"}
     end
 
-    def method_missing(sym)
+    def method_missing(sym,*as)
       DEFS.has_key?(sym) ? DEFS[sym] : super
     end
   end
@@ -142,7 +141,6 @@ module RBNF
     def to_s
       "{ #{a} }"
     end
-
     def matcher
       a.matcher.rep
     end
@@ -152,7 +150,6 @@ module RBNF
     def to_s
       "#{b} * #{a}"
     end
-
     def matcher
       a.matcher.rep_ b
     end
@@ -162,7 +159,6 @@ module RBNF
     def to_s
       "\"#{a}\""
     end
-
     def matcher
       Matcher.new {|s| s==a}
     end

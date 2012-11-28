@@ -9,7 +9,7 @@ class DefTests
   end
   def recursive_definition
     RBNF.define :parens do
-      RBNF[?(] + parens.opt + ?)
+      RBNF[?(] + RBNF.parens.opt + ?)
     end
     RBNF.parens
   end
