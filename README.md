@@ -4,15 +4,13 @@ RBNF is an Extended Backus-Naur Form implementation for Ruby.
 ```ruby
   form = RBNF[?a] / ?b / ?c #=> "a" | "b" | "c"
 ```
-RBNF objects can be used to perform regex-like matches on strings:
+RBNF objects can be used to perform regex-like matches on strings. This form will match the same strings as /[abc]/ :
 ```ruby
   form =~ 'a'  #=> true
-  form =~ 'b'  #=> false
+  form =~ 'b'  #=> true
   form =~ 'd'  #=> false
   form =~ 'ab' #=> false
 ```
-The above form will match the same strings as /[abc]/.
-
 RBNFs can also accomplish matches that regexes can't:
 
 ```ruby
