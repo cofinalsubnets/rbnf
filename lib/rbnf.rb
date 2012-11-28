@@ -1,4 +1,4 @@
-$LOAD_PATH << File.dirname(__FILE__)
+require 'rbnf/version'
 module RBNF
   autoload :Matcher, 'rbnf/matcher'
   DEFS = {}
@@ -21,7 +21,7 @@ module RBNF
   end
 
   def rep(n=nil)
-    Rep.new self
+    Rep.new self, n
   end
 
   def group
@@ -131,13 +131,13 @@ module RBNF
     end
   end
 
-  class Rep < Unary
+  class Rep < Binary
     def to_s
-      "{ #{a} }"
+      "{ #{"#{b} * " if b}#{a} }"
     end
 
     def matcher
-      a.matcher.rep
+      b ? a.matcher.rep_(b) : a.matcher.rep
     end
   end
 
@@ -150,5 +150,5 @@ module RBNF
       Matcher.new {|s| s==a}
     end
   end
-
 end
+
