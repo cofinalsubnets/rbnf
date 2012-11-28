@@ -55,7 +55,7 @@ class StringTests
 end
 
 Graham.pp(StringTests) do |that|
-  that.a_definition.returns 'symbol = "string" ;'
+  that.a_definition.returns 'symbol'
   that.terminal_string.is '"string"'
   that.optation.returns '[ "string" ]'
   that.unary_repetition.returns '{ "string" }'
