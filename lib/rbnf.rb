@@ -2,7 +2,6 @@ require 'rbnf/version'
 module RBNF
   autoload :Matcher, 'rbnf/matcher'
   DEFS = {}
-  F = self
 
   def opt
     Opt.new self
@@ -80,6 +79,9 @@ module RBNF
   class Alt < Binary
     def to_s
       "#{a} | #{b}"
+    end
+    def initialize(a,b)
+      @a,@b=[a,b].map {|e| Cat===e ? e.group : e}
     end
     def matcher
       a.matcher.alt b.matcher
