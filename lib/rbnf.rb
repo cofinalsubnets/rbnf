@@ -19,8 +19,12 @@ module RBNF
     Except.new self, ebnify(f)
   end
 
-  def rep(n=nil)
-    Rep.new self, n
+  def rep
+    Rep.new self
+  end
+
+  def rep_n(n)
+    RepN.new(self, n).tap {|r| r.matcher}
   end
 
   def group
@@ -34,7 +38,7 @@ module RBNF
   alias + cat
   alias / alt
   alias +@ rep
-  alias * rep
+  alias * rep_n
   alias -@ opt
   alias - except
   alias =~ match
@@ -46,13 +50,14 @@ module RBNF
   end
 
   class << self
-    def new(s)
+    def [](s)
       Term.new s
     end
-    alias [] new
 
     def define(sym,&b)
-      DEFS[sym] = Def.new(sym, Matcher.new {|s| RBNF.instance_exec(&b) =~s})
+      ast_p = ->{RBNF.instance_exec &b}
+      DEFS[sym] = Def.new(sym, Matcher.new {|s| ast_p.call =~s})
+      DEFS[sym].tap{|d| d.instance_variable_set :@a, "#{sym} = #{ast_p.call} ;"}
     end
 
     def method_missing(sym)
@@ -133,13 +138,23 @@ module RBNF
     end
   end
 
-  class Rep < Binary
+  class Rep < Unary
     def to_s
-      "{ #{"#{b} * " if b}#{a} }"
+      "{ #{a} }"
     end
 
     def matcher
-      b ? a.matcher.rep_(b) : a.matcher.rep
+      a.matcher.rep
+    end
+  end
+
+  class RepN < Binary
+    def to_s
+      "#{b} * #{a}"
+    end
+
+    def matcher
+      a.matcher.rep_ b
     end
   end
 

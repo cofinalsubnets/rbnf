@@ -27,11 +27,11 @@ module RBNF
       if    n == 0
         Matcher.new {|s| s.empty? }
       elsif n == 1
-        rep
+        self
       elsif Integer===n and n>1
         Matcher.new do |s|
           (2..n).inject(self) {|m| m.cat self}[s]
-        end.rep
+        end
       else
         raise ArgumentError, "can't repeat #{self} #{n} times"
       end

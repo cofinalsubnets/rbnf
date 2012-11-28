@@ -11,8 +11,8 @@ end
 
 Graham.pp(Repetition) do |that|
   that.a_binary_repetition.is_such_that {
-    [?G,'AAAG','AAAAAAG'].all? {|s| match s} and
-    ['','AG','AAG'].none?  {|s| match s}}
+    match('AAAG') and
+    [?g,'AG','AAAAAAG'].none?  {|s| match s}}
 
   that.a_unary_repetition.is_such_that {
     ['','xyz','xyzxyz'].all? {|s| match s} and

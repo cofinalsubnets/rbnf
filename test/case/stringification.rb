@@ -16,7 +16,7 @@ class StringTests
   end
 
   def nested_repetition
-    @term.rep.rep(3).to_s
+    @term.rep.rep_n(3).to_s
   end
 
   def unary_repetition
@@ -24,7 +24,7 @@ class StringTests
   end
 
   def binary_repetition
-    @term.rep(3).to_s
+    @term.rep_n(3).to_s
   end
 
   def optation
@@ -32,8 +32,8 @@ class StringTests
   end
 
   def a_definition
-    RBNF.define :name do
-      @term
+    RBNF.define(:symbol) do
+      RBNF["string"]
     end.to_s
   end
 
@@ -55,12 +55,12 @@ class StringTests
 end
 
 Graham.pp(StringTests) do |that|
-  that.a_definition.returns 'name'
+  that.a_definition.returns 'symbol = "string" ;'
   that.terminal_string.is '"string"'
   that.optation.returns '[ "string" ]'
   that.unary_repetition.returns '{ "string" }'
-  that.binary_repetition.returns '{ 3 * "string" }'
-  that.nested_repetition.returns '{ 3 * { "string" } }'
+  that.binary_repetition.returns '3 * "string"'
+  that.nested_repetition.returns '3 * { "string" }'
   that.alternation_and_catenation.returns '"string" | "opt" , "string" | "cat"'
   that.multiple_catenation.returns '"string" , "char" , "list"'
   that.multiple_alternation.returns '"string" | "char" | "list"'
