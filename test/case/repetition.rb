@@ -1,18 +1,20 @@
 require 'rbnf'
 class Repetition
-  def binary_repetition
+  def a_binary_repetition
     RBNF[?A]*3+?G
+  end
+
+  def a_unary_repetition
+    +(RBNF[?x]+?y+?z)
   end
 end
 
 Graham.pp(Repetition) do |that|
-  that.binary_repetition.is_such_that {
-    self =~ 'G' and
-    self =~ 'AAAG' and
-    self =~ 'AAAAAAG'
-  }.and_such_that {
-    not self =~ '' and
-    not self =~ 'AG' and
-    not self =~ 'AAG'
-  }
+  that.a_binary_repetition.is_such_that {
+    [?G,'AAAG','AAAAAAG'].all? {|s| match s} and
+    ['','AG','AAG'].none?  {|s| match s}}
+
+  that.a_unary_repetition.is_such_that {
+    ['','xyz','xyzxyz'].all? {|s| match s} and
+    [?x,?y,?z,'zyx'].none? {|s| match s}}
 end
