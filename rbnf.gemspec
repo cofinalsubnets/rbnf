@@ -4,7 +4,7 @@ require 'rbnf/version'
 
 Gem::Specification.new do |spec|
   spec.name        = 'rbnf'
-  spec.version     = EBNF::VERSION
+  spec.version     = RBNF::VERSION
   spec.author      = 'feivel jellyfish'
   spec.email       = 'feivel@sdf.org'
   spec.files       = FileList['rbnf.gemspec','lib/**/*.rb']
