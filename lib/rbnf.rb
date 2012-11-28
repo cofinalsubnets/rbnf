@@ -1,4 +1,5 @@
 require 'rbnf/version'
+require 'rbnf/string_extensions'
 module RBNF
   DEFS = {}
 
@@ -34,12 +35,13 @@ module RBNF
     match s
   end
 
-  def parts(s)
-    (0..s.size-1).map {|i| s[0..i]}.push('').select {|h| match h}
-  end
-
   def comps(s)
-    parts(s).map {|p| s.sub p, ''}
+    e=s.heads
+    Enumerator.new do |y|
+      while !(h=e.next).empty?
+        match(h) ? (y<<s.sub(h,'')) : next
+      end
+    end
   end
 
   alias + cat
@@ -62,7 +64,6 @@ module RBNF
 
     def define(sym,&b)
       DEFS[sym] = Def.new sym, ->(s){b.call =~ s}
-      DEFS[sym].tap{|d| d.instance_variable_set :@a, "#{sym} = #{b.call} ;"}
     end
 
     def method_missing(sym,*as)
