@@ -27,11 +27,11 @@ module RBNF
       if    n == 0
         Matcher.new {|s| s.empty? }
       elsif n == 1
-        opt
+        rep
       elsif Integer===n and n>1
         Matcher.new do |s|
-          s.empty? or (2..n).inject(self) {|m| m.cat self}[s]
-        end
+          (2..n).inject(self) {|m| m.cat self}[s]
+        end.rep
       else
         raise ArgumentError, "can't repeat #{self} #{n} times"
       end
@@ -40,7 +40,7 @@ module RBNF
     private
 
     def parts(s)
-      (0..s.size-1).map {|i| s[0..i]}.select {|h| self[h]}
+      (0..s.size-1).map {|i| s[0..i]}.push('').select {|h| self[h]}
     end
 
     def comps(s)
