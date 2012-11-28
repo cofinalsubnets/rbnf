@@ -1,6 +1,5 @@
 require 'rbnf/version'
 module RBNF
-  autoload :Matcher, 'rbnf/matcher'
   DEFS = {}
 
   def opt
@@ -24,15 +23,23 @@ module RBNF
   end
 
   def rep_n(n)
-    RepN.new(self, n).tap {|r| r.matcher}
+    RepN.new self, n
   end
 
   def group
     Group.new self
   end
 
-  def match(p)
-    matcher[p]
+  def =~(s)
+    match s
+  end
+
+  def parts(s)
+    (0..s.size-1).map {|i| s[0..i]}.push('').select {|h| match h}
+  end
+
+  def comps(s)
+    parts(s).map {|p| s.sub p, ''}
   end
 
   alias + cat
@@ -41,7 +48,6 @@ module RBNF
   alias * rep_n
   alias -@ opt
   alias - except
-  alias =~ match
 
   private
 
@@ -55,7 +61,7 @@ module RBNF
     end
 
     def define(sym,&b)
-      DEFS[sym] = Def.new(sym, Matcher.new {|s| b.call =~s})
+      DEFS[sym] = Def.new sym, ->(s){b.call =~ s}
       DEFS[sym].tap{|d| d.instance_variable_set :@a, "#{sym} = #{b.call} ;"}
     end
 
@@ -87,8 +93,8 @@ module RBNF
     def initialize(a,b)
       @a,@b=[a,b].map {|e| Cat===e ? e.group : e}
     end
-    def matcher
-      a.matcher.alt b.matcher
+    def match(s)
+      a.match(s) or b.match(s)
     end
   end
 
@@ -96,8 +102,8 @@ module RBNF
     def to_s
       "#{a}"
     end
-    def matcher
-      b
+    def match(s)
+      b[s]
     end
   end
 
@@ -105,8 +111,8 @@ module RBNF
     def to_s
       "#{a} , #{b}"
     end
-    def matcher
-      a.matcher.cat b.matcher
+    def match(s)
+      a.comps(s).any? {|c| b.match c}
     end
   end
 
@@ -114,8 +120,8 @@ module RBNF
     def to_s
       "[ #{a} ]"
     end
-    def matcher
-      a.matcher.opt
+    def match(s)
+      s.empty? or a.match(s)
     end
   end
 
@@ -123,8 +129,8 @@ module RBNF
     def to_s
       "( #{a} )"
     end
-    def matcher
-      a.matcher
+    def match(s)
+      a.match s
     end
   end
 
@@ -132,8 +138,8 @@ module RBNF
     def to_s
       "( #{a} - #{b} )"
     end
-    def matcher
-      a.matcher.except b.matcher
+    def match(s)
+      a.match(s) and not b.match(s)
     end
   end
 
@@ -141,8 +147,8 @@ module RBNF
     def to_s
       "{ #{a} }"
     end
-    def matcher
-      a.matcher.rep
+    def match(s)
+      s.empty? or a.comps(s).select {|c| match c}.any?
     end
   end
 
@@ -150,8 +156,14 @@ module RBNF
     def to_s
       "#{b} * #{a}"
     end
-    def matcher
-      a.matcher.rep_ b
+    def match(s)
+      if b==0
+        s.empty?
+      elsif Integer===b and b>0
+        (2..b).inject(a) {|r| r.cat a}.match s
+      else
+        raise ArgumentError, "can't repeat #{a} #{b} times"
+      end
     end
   end
 
@@ -159,8 +171,8 @@ module RBNF
     def to_s
       "\"#{a}\""
     end
-    def matcher
-      Matcher.new {|s| s==a}
+    def match(s)
+      s==a
     end
   end
 end
