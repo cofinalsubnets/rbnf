@@ -1,5 +1,4 @@
 require 'rbnf/version'
-require 'rbnf/string_extensions'
 module RBNF
   DEFS = {}
 
@@ -35,13 +34,8 @@ module RBNF
     match s
   end
 
-  def comps(s)
-    e=s.heads
-    Enumerator.new do |y|
-      while !(h=e.next).empty?
-        match(h) ? (y<<s.sub(h,'')) : next
-      end
-    end
+  def comps(s, e=heads(s))
+    Enumerator.new {|y| e.each {|h| match(h) ? (y<<s.sub(h,'')) : next}}
   end
 
   alias + cat
@@ -55,6 +49,10 @@ module RBNF
 
   def ebnify(s)
     RBNF===s ? s : RBNF[s]
+  end
+
+  def heads(s)
+    Enumerator.new {|y| y<<s; y<<s while s=s.dup.chop!}
   end
 
   class << self
