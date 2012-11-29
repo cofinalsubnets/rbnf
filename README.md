@@ -1,6 +1,15 @@
 RBNF
 ----
 RBNF is an Extended Backus-Naur Form implementation for Ruby.
+
+Installation
+------------
+```shell
+  gem install rbnf
+```
+
+Usage
+-----
 ```ruby
   form  = RBNF[?a] / ?b / ?c         #=> '"a" | "b" | "c"'
   form2 = RBNF[?a].cat('b').alt('c') #=> '( "a" , "b" ) | "c"'
@@ -17,12 +26,12 @@ RBNFs can also accomplish matches that regexes can't:
 ```ruby
   RBNF.define :parens do
     RBNF[?(] + RBNF.parens.opt + ?)
-  end #=> 'parens = "(" , [ parens ] , ")" ;'
+  end
 
   RBNF.parens =~ '()'    #=> true
   RBNF.parens =~ '(())'  #=> true
   RBNF.parens =~ '(()))' #=> false
 
 ```
-RBNF currently makes no attempt whatsoever to optimize for performance. In almost any performance-sensitive application you're better off using a different solution, unless you restrict your use to simple forms on small strings.
+RBNF objects memoize matches, but otherwise make no attempt at optimizing for performance.
 
