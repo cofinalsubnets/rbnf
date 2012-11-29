@@ -12,6 +12,6 @@ Gem::Specification.new do |spec|
   spec.homepage    = 'http://github.com/gwentacle/ebnf'
   spec.summary     = 'Extended Backus-Naur Form implementation for Ruby'
   spec.description = 'Extended Backus-Naur Form implementation for Ruby'
-  spec.add_development_dependency 'graham', '>=0.0.2'
+  spec.add_development_dependency 'graham', '>=0.0.3'
 end
 
