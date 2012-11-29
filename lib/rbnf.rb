@@ -32,11 +32,11 @@ module RBNF
   end
 
   def =~(s)
-    match s
+    @memo.has_key?(s) ? @memo[s] : (@memo[s] = match s)
   end
 
   def comps(s, e=heads(s))
-    Enumerator.new {|y| e.each {|h| match(h) ? (y<<s.sub(h,'')) : next}}
+    Enumerator.new {|y| e.each {|h| self=~h ? (y<<s.slice(h.size..-1)) : next}}
   end
 
   alias + cat
@@ -45,6 +45,7 @@ module RBNF
   alias * rep_n
   alias -@ opt
   alias - except
+  alias [] =~
 
   private
 
@@ -53,7 +54,7 @@ module RBNF
   end
 
   def heads(s)
-    Enumerator.new {|y| y<<s; y<<s while s=s.dup.chop!}
+    Enumerator.new {|y| (0..s.size).each {|i| y<<s.slice(0,i)}}
   end
 
   class << self
@@ -62,7 +63,7 @@ module RBNF
     end
 
     def define(sym,&b)
-      DEFS[sym] = Def.new sym, ->(s){b.call =~ s}
+      DEFS[sym] = Def.new sym, (b.call rescue ->(s){b.call=~s})
     end
 
     def method_missing(sym,*as)

@@ -14,7 +14,6 @@ class DefTests
     RBNF.parens
   end
 end
-
 Graham.pp(DefTests) do |that|
   that.recursive_definition.is_such_that {
     %w{() (())}.all?  {|s| match s} and

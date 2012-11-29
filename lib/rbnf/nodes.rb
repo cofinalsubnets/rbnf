@@ -2,17 +2,17 @@ module RBNF
   
   class Unary
     include RBNF
-    attr_reader :a
+    attr_accessor :a
     def initialize(a)
-      @a=a
+      @a,@memo=a,{}
     end
   end
 
   class Binary
     include RBNF
-    attr_reader :a,:b
+    attr_accessor :a,:b
     def initialize(a,b)
-      @a,@b=a,b
+      @a,@b,@memo=a,b,{}
     end
   end
 
@@ -21,10 +21,11 @@ module RBNF
       "#{a} | #{b}"
     end
     def initialize(a,b)
+      @memo={}
       @a,@b=[a,b].map {|e| Cat===e ? e.group : e}
     end
     def match(s)
-      a.match(s) or b.match(s)
+      a=~s or b=~s
     end
   end
 
@@ -42,7 +43,7 @@ module RBNF
       "#{a} , #{b}"
     end
     def match(s)
-      a.comps(s).any? {|c| b.match c}
+      a.comps(s).any? {|c| b=~c}
     end
   end
 
@@ -51,7 +52,7 @@ module RBNF
       "[ #{a} ]"
     end
     def match(s)
-      s.empty? or a.match(s)
+      s.empty? or a=~s
     end
   end
 
@@ -60,7 +61,7 @@ module RBNF
       "( #{a} )"
     end
     def match(s)
-      a.match s
+      a=~s
     end
   end
 
@@ -69,7 +70,7 @@ module RBNF
       "( #{a} - #{b} )"
     end
     def match(s)
-      a.match(s) and not b.match(s)
+      a=~s && !b=~s
     end
   end
 
@@ -78,7 +79,7 @@ module RBNF
       "{ #{a} }"
     end
     def match(s)
-      s.empty? or a.comps(s).any? {|c| match c}
+      s.empty? or a.comps(s).any? {|c| self=~c}
     end
   end
 
@@ -90,7 +91,7 @@ module RBNF
       if b==0
         s.empty?
       elsif Integer===b and b>0
-        (2..b).inject(a) {|r| r.cat a}.match s
+        (2..b).inject(a) {|r| r.cat a}=~s
       else
         raise ArgumentError, "can't repeat #{a} #{b} times"
       end
