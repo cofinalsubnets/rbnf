@@ -2,7 +2,7 @@ module RBNF
   
   class Unary
     include RBNF
-    attr_accessor :a
+    attr_reader :a
     def initialize(a)
       @a,@memo=a,{}
     end
@@ -10,7 +10,7 @@ module RBNF
 
   class Binary
     include RBNF
-    attr_accessor :a,:b
+    attr_reader :a,:b
     def initialize(a,b)
       @a,@b,@memo=a,b,{}
     end
