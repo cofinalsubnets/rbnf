@@ -17,7 +17,7 @@ class Repetition
   end
 end
 
-Graham.pp(Repetition) do |that|
+Graham.pp(Repetition.new) do |that|
   that.a_binary_repetition.is_such_that {
     match('AAAG') and
     [?g,'AG','AAAAAAG'].none?  {|s| match s}}

@@ -35,7 +35,7 @@ module RBNF
     @memo.has_key?(s) ? @memo[s] : (@memo[s] = match s)
   end
 
-  def comps(s, e=heads(s))
+  def comps(s, e=heads(s)) #:nodoc:
     Enumerator.new {|y| e.each {|h| self=~h ? (y<<s.slice(h.size..-1)) : next}}
   end
 
@@ -45,7 +45,7 @@ module RBNF
   alias * rep_n
   alias -@ opt
   alias - except
-  alias [] =~
+  alias [] =~ #:nodoc:
 
   private
 
@@ -62,8 +62,24 @@ module RBNF
       Term.new s
     end
 
-    def define(sym,&b)
-      DEFS[sym] = Def.new sym, (b.call rescue ->(s){b.call=~s})
+    # Takes a symbol <name> and a block and defines a new form <name> to be
+    # the contents of the block. Note that this method can't handle recursive
+    # form definition; use ::define for that instead.
+    def def(name)
+      DEFS[name] = Def.new(name, yield)
+    end
+
+    # Takes a symbol <name> and a block and defines a new form <name> to be
+    # the contents of the block. In contrast to ::def this method can handle
+    # recursive definition, at the cost of building a new AST each time a
+    # match is attempted on the new form.
+    def define(name,&b)
+      DEFS[name] = Def.new name, ->(s){b.call=~s}
+    end
+
+    # Empties the memos of all defined (with ::def or ::define) forms.
+    def dememoize
+      DEFS.values.each {|v| v.instance_variable_set :@memo, {}}
     end
 
     def method_missing(sym,*as)

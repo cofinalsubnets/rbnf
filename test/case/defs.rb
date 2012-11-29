@@ -2,7 +2,7 @@ require 'rbnf'
 
 class DefTests
   def simple_definition
-    RBNF.define :abc do
+    RBNF.def :abc do
       +(RBNF[?a]/?b/?c)
     end
     RBNF.abc
@@ -14,7 +14,7 @@ class DefTests
     RBNF.parens
   end
 end
-Graham.pp(DefTests) do |that|
+Graham.pp(DefTests.new) do |that|
   that.recursive_definition.is_such_that {
     %w{() (())}.all?  {|s| match s} and
     %w{( ) (()}.none? {|s| match s}}

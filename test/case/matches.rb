@@ -4,6 +4,6 @@ class MatchTests
   end
 end
 
-Graham.pp(MatchTests) do |that|
-#  that.a_long_match.is true
+Graham.pp(MatchTests.new) do |that|
+  that.a_long_match.is true
 end
