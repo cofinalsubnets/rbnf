@@ -1,5 +1,6 @@
 module RBNF
   
+  # Unary AST node
   class Unary
     include RBNF
     attr_reader :a
@@ -8,6 +9,7 @@ module RBNF
     end
   end
 
+  # Binary AST node
   class Binary
     include RBNF
     attr_reader :a,:b
@@ -16,6 +18,7 @@ module RBNF
     end
   end
 
+  # Alternation node
   class Alt < Binary
     def to_s
       "#{a} | #{b}"
@@ -29,6 +32,7 @@ module RBNF
     end
   end
 
+  # Node that encapsulates a defined (with RBNF::def or ::define) form.
   class Def < Binary
     def to_s
       "#{a}"
@@ -38,6 +42,7 @@ module RBNF
     end
   end
 
+  # Catenation node
   class Cat < Binary
     def to_s
       "#{a} , #{b}"
@@ -47,6 +52,7 @@ module RBNF
     end
   end
 
+  # Optation node
   class Opt < Unary
     def to_s
       "[ #{a} ]"
@@ -56,6 +62,8 @@ module RBNF
     end
   end
 
+  # Grouping node. Semantically identical to its child, but greatly simplifies
+  # stringification.
   class Group < Unary
     def to_s
       "( #{a} )"
@@ -65,6 +73,7 @@ module RBNF
     end
   end
 
+  # Exception node
   class Except < Binary
     def to_s
       "( #{a} - #{b} )"
@@ -74,6 +83,7 @@ module RBNF
     end
   end
 
+  # Repetition (0 or more times) node
   class Rep < Unary
     def to_s
       "{ #{a} }"
@@ -83,6 +93,7 @@ module RBNF
     end
   end
 
+  # Repetition (n times) node
   class RepN < Binary
     def to_s
       "#{b} * #{a}"
@@ -98,6 +109,7 @@ module RBNF
     end
   end
 
+  # Terminal node
   class Term < Unary
     def to_s
       "\"#{a}\""

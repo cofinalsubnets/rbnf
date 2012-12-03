@@ -1,36 +1,45 @@
 require 'rbnf/version'
 require 'rbnf/nodes'
 module RBNF
+  # Namespace for defined forms.
   DEFS = {}
 
+  # [ "a" ]
   def opt
     Opt.new self
   end
 
+  # "a" , "b"
   def cat(f)
     Cat.new self, ebnify(f)
   end
 
+  # "a" | "b"
   def alt(f)
     Alt.new self, ebnify(f)
   end
 
+  # a - "b"
   def except(f)
     Except.new self, ebnify(f)
   end
 
+  # { "a" }
   def rep
     Rep.new self
   end
 
+  # b * "a"
   def rep_n(n)
     RepN.new self, n
   end
 
+  # ( "a" )
   def group
     Group.new self
   end
 
+  # String match with memoization.
   def =~(s)
     @memo.has_key?(s) ? @memo[s] : (@memo[s] = match s)
   end
@@ -66,7 +75,7 @@ module RBNF
     # the contents of the block. Note that this method can't handle recursive
     # form definition; use ::define for that instead.
     def def(name)
-      DEFS[name] = Def.new(name, yield)
+      DEFS[name] = Def.new name, yield
     end
 
     # Takes a symbol <name> and a block and defines a new form <name> to be
